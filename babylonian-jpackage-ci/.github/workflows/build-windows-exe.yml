@@ -1,0 +1,35 @@
+
+name: Build Windows EXE (jpackage)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build JAR
+        shell: cmd
+        run: build-jar.bat
+
+      - name: Build EXE with jpackage
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          .\make-exe.ps1 -AppName "BabylonianSqrt" -Vendor "Denis" -Version "1.0.0"
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BabylonianSqrt-setup
+          path: dist/*.exe
